@@ -15,12 +15,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import br.com.alura.aluvery.dao.ProdutoDao
+import br.com.alura.aluvery.model.Produto
 import br.com.alura.aluvery.ui.samples.sampleCandies
 import br.com.alura.aluvery.ui.samples.sampleDrinks
 import br.com.alura.aluvery.ui.samples.sampleProdutos
+import br.com.alura.aluvery.ui.samples.sampleTodos
 import br.com.alura.aluvery.ui.screens.HomeScreen
 import br.com.alura.aluvery.ui.screens.HomeScreenUiState
 import br.com.alura.aluvery.ui.theme.AluveryTheme
@@ -33,19 +38,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             App(onFabClick = {
-                startActivity(Intent(
-                    this,
-                    FormularioProdutoActivity::class.java
-                ))
-            }) {
-                val sections = mapOf(
-                    "Todos os Produtos" to dao.produtos(),
-                    "Promoções" to sampleProdutos,
-                    "Doces" to sampleCandies,
-                    "Bebidas" to sampleDrinks
+                startActivity(
+                    Intent(
+                        this,
+                        FormularioProdutoActivity::class.java
+                    )
                 )
-                val uiState = remember { HomeScreenUiState("") }
-                HomeScreen(sections = sections, uiState = uiState)
+            }) {
+                val produtos = dao.produtos()
+                HomeScreen(produtos)
             }
         }
     }

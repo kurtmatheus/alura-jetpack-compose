@@ -21,35 +21,63 @@ import br.com.alura.aluvery.model.Produto
 import br.com.alura.aluvery.ui.components.CardProductItem
 import br.com.alura.aluvery.ui.components.ProductSection
 import br.com.alura.aluvery.ui.components.SearchTextField
+import br.com.alura.aluvery.ui.samples.sampleCandies
+import br.com.alura.aluvery.ui.samples.sampleDrinks
+import br.com.alura.aluvery.ui.samples.sampleProdutos
 import br.com.alura.aluvery.ui.samples.sampleSections
 import br.com.alura.aluvery.ui.samples.sampleTodos
 import br.com.alura.aluvery.ui.theme.AluveryTheme
 
-class HomeScreenUiState(searchText: String = "") {
-    var text by mutableStateOf(searchText)
-        private set
+class HomeScreenUiState(
+    val searchText: String = "",
+    val sections: Map<String, List<Produto>> = mapOf(),
+    val onSearchChange: (String) -> Unit = {},
+    val searchedProducts: List<Produto> = emptyList()
+) {
+    fun isShowSection(): Boolean = searchText.isBlank()
+}
 
-    val searchedProducts get() = if (text.isNotBlank()) {
-        sampleTodos.filter { produto ->
-            produto.nome.contains(text, true)
-        }
+@Composable
+fun HomeScreen(produtos: List<Produto>) {
+    val sections = mapOf(
+        "Todos os Produtos" to produtos,
+        "Promoções" to sampleProdutos,
+        "Doces" to sampleCandies,
+        "Bebidas" to sampleDrinks
+    )
+
+    var text by remember {
+        mutableStateOf("")
+    }
+
+    val searchedProducts = if (text.isNotBlank()) {
+        val todos = sampleTodos + produtos
+        todos.filter { produto -> produto.nome.contains(text, true) }
     } else emptyList()
 
-    fun isShowSection(): Boolean = text.isBlank()
-
-    val onSearchChange: (String) -> Unit = {searchText ->
-        text = searchText
+    val uiState = remember(produtos, text) {
+        HomeScreenUiState(
+            searchText = text,
+            sections = sections,
+            onSearchChange = {
+                text = it
+            },
+            searchedProducts = searchedProducts
+        )
     }
+
+    HomeScreen(uiState)
 }
 
 @Composable
 fun HomeScreen(
-    sections: Map<String, List<Produto>>,
-    uiState: HomeScreenUiState = HomeScreenUiState("")
+    uiState: HomeScreenUiState
 ) {
+    val sections = uiState.sections
+
     Column {
         SearchTextField(
-            searchText = uiState.text,
+            searchText = uiState.searchText,
             onSearchChange = uiState.onSearchChange
         )
 
@@ -94,7 +122,12 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     AluveryTheme {
         Surface {
-            HomeScreen(sections = sampleSections)
+            HomeScreen(HomeScreenUiState(
+                searchText = "",
+                sections = sampleSections,
+                onSearchChange = {},
+                searchedProducts = sampleProdutos
+            ))
         }
     }
 }
