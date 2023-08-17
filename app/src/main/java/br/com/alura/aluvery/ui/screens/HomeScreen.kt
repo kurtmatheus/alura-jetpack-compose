@@ -10,62 +10,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import br.com.alura.aluvery.model.Produto
 import br.com.alura.aluvery.ui.components.CardProductItem
 import br.com.alura.aluvery.ui.components.ProductSection
 import br.com.alura.aluvery.ui.components.SearchTextField
-import br.com.alura.aluvery.ui.samples.sampleCandies
-import br.com.alura.aluvery.ui.samples.sampleDrinks
 import br.com.alura.aluvery.ui.samples.sampleProdutos
 import br.com.alura.aluvery.ui.samples.sampleSections
-import br.com.alura.aluvery.ui.samples.sampleTodos
+import br.com.alura.aluvery.ui.states.HomeScreenUiState
 import br.com.alura.aluvery.ui.theme.AluveryTheme
-
-class HomeScreenUiState(
-    val searchText: String = "",
-    val sections: Map<String, List<Produto>> = mapOf(),
-    val onSearchChange: (String) -> Unit = {},
-    val searchedProducts: List<Produto> = emptyList()
-) {
-    fun isShowSection(): Boolean = searchText.isBlank()
-}
+import br.com.alura.aluvery.ui.viewmodels.HomeScreenViewModel
 
 @Composable
-fun HomeScreen(produtos: List<Produto>) {
-    val sections = mapOf(
-        "Todos os Produtos" to produtos,
-        "Promoções" to sampleProdutos,
-        "Doces" to sampleCandies,
-        "Bebidas" to sampleDrinks
-    )
-
-    var text by remember {
-        mutableStateOf("")
-    }
-
-    val searchedProducts = if (text.isNotBlank()) {
-        val todos = sampleTodos + produtos
-        todos.filter { produto -> produto.nome.contains(text, true) }
-    } else emptyList()
-
-    val uiState = remember(produtos, text) {
-        HomeScreenUiState(
-            searchText = text,
-            sections = sections,
-            onSearchChange = {
-                text = it
-            },
-            searchedProducts = searchedProducts
-        )
-    }
-
+fun HomeScreen(
+    viewModel: HomeScreenViewModel
+) {
+    val uiState by viewModel.uiState.collectAsState()
     HomeScreen(uiState)
 }
 
@@ -122,12 +85,14 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     AluveryTheme {
         Surface {
-            HomeScreen(HomeScreenUiState(
-                searchText = "",
-                sections = sampleSections,
-                onSearchChange = {},
-                searchedProducts = sampleProdutos
-            ))
+            HomeScreen(
+                HomeScreenUiState(
+                    searchText = "",
+                    sections = sampleSections,
+                    onSearchChange = {},
+                    searchedProducts = sampleProdutos
+                )
+            )
         }
     }
 }

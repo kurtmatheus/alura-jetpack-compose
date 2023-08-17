@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import br.com.alura.aluvery.model.Produto
 import br.com.alura.aluvery.ui.components.ProductItem
-import br.com.alura.aluvery.ui.samples.sampleTodos
+import br.com.alura.aluvery.ui.samples.sampleProdutos
 import br.com.alura.aluvery.ui.theme.AluveryTheme
 
 @Composable
@@ -50,7 +50,7 @@ fun GridScreen(
 fun GridScreenPreview() {
     AluveryTheme {
         Surface {
-            GridScreen(produtos = sampleTodos, Modifier)
+            GridScreen(produtos = sampleProdutos, Modifier)
         }
     }
 }

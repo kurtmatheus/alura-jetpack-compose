@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -15,24 +16,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import br.com.alura.aluvery.dao.ProdutoDao
-import br.com.alura.aluvery.model.Produto
-import br.com.alura.aluvery.ui.samples.sampleCandies
-import br.com.alura.aluvery.ui.samples.sampleDrinks
-import br.com.alura.aluvery.ui.samples.sampleProdutos
-import br.com.alura.aluvery.ui.samples.sampleTodos
 import br.com.alura.aluvery.ui.screens.HomeScreen
-import br.com.alura.aluvery.ui.screens.HomeScreenUiState
 import br.com.alura.aluvery.ui.theme.AluveryTheme
+import br.com.alura.aluvery.ui.viewmodels.HomeScreenViewModel
 
 class MainActivity : ComponentActivity() {
-
-    private val dao = ProdutoDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,8 +34,8 @@ class MainActivity : ComponentActivity() {
                     )
                 )
             }) {
-                val produtos = dao.produtos()
-                HomeScreen(produtos)
+                val viewModel by viewModels<HomeScreenViewModel>()
+                HomeScreen(viewModel)
             }
         }
     }

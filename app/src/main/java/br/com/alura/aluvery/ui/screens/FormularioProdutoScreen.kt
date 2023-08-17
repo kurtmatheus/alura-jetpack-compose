@@ -14,10 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -26,88 +24,23 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.alura.aluvery.R
-import br.com.alura.aluvery.model.Produto
 import br.com.alura.aluvery.ui.components.FormularioTextField
+import br.com.alura.aluvery.ui.states.FormularioProdutoUiState
 import br.com.alura.aluvery.ui.theme.AluveryTheme
+import br.com.alura.aluvery.ui.viewmodels.FormularioProdutoViewModel
 import coil.compose.AsyncImage
-import java.lang.NumberFormatException
-import java.math.BigDecimal
-import java.text.DecimalFormat
-
-class FormularioScreenUiState(
-    val url: String = "",
-    val nome: String = "",
-    val preco: String = "",
-    val descricao: String = "",
-    val showImagem: Boolean = url.isNotBlank(),
-    val isPriceError: Boolean = false,
-    val onUrlChange: (String) -> Unit = {},
-    val onNameChange: (String) -> Unit = {},
-    val onDescriptionChange: (String) -> Unit = {},
-    val onPriceChange: (String) -> Unit = {}
-)
 
 @Composable
-fun FormularioProdutoScreen(onSalvarClick: (Produto) -> Unit) {
-    var name by remember {
-        mutableStateOf("")
-    }
-    var url by remember {
-        mutableStateOf("")
-    }
-    var price by remember {
-        mutableStateOf("")
-    }
-    var description by remember {
-        mutableStateOf("")
-    }
-    val formatter = remember {
-        DecimalFormat("#.##")
-    }
-
-    var error by remember {
-        mutableStateOf(false)
-    }
+fun  FormularioProdutoScreen(
+    viewModel: FormularioProdutoViewModel,
+    onSalvarClick: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
     FormularioProdutoScreen(
-        uiState = FormularioScreenUiState(
-            url = url,
-            nome = name,
-            preco = price,
-            descricao = description,
-            isPriceError = error,
-            onUrlChange = {
-                url = it
-            },
-            onNameChange = {
-                name = it
-            },
-            onPriceChange = {
-                try {
-                    price = formatter.format(BigDecimal(it))
-                } catch (e: IllegalArgumentException) {
-                    if (it.isBlank()) {
-                        price = it
-                    }
-                    error = true
-                }
-            },
-            onDescriptionChange = {
-                description = it
-            }
-        ),
+        uiState = uiState,
         onSalvarClick = {
-            val convertedPrice = try {
-                BigDecimal(price)
-            } catch (e: NumberFormatException) {
-                BigDecimal.ZERO
-            }
-            val produto = Produto(
-                nome = name,
-                imagem = url,
-                preco = convertedPrice,
-                descricao = description
-            )
-            onSalvarClick(produto)
+            viewModel.salvar()
+            onSalvarClick()
         }
     )
 }
@@ -115,7 +48,7 @@ fun FormularioProdutoScreen(onSalvarClick: (Produto) -> Unit) {
 @Composable
 fun FormularioProdutoScreen(
     onSalvarClick: () -> Unit = {},
-    uiState: FormularioScreenUiState = FormularioScreenUiState()
+    uiState: FormularioProdutoUiState = FormularioProdutoUiState()
 ) {
 
     val modifierTextField = Modifier.fillMaxWidth()
@@ -133,7 +66,7 @@ fun FormularioProdutoScreen(
         val descricao= uiState.descricao
         val isPriceError = uiState.isPriceError
 
-        if (uiState.showImagem) {
+        if (uiState.showImagem()) {
             AsyncImage(
                 model = url,
                 contentDescription = null,
@@ -185,7 +118,7 @@ fun FormularioProdutoScreen(
             imeAction = ImeAction.Default
         )
         Button(
-            onClick = { onSalvarClick() },
+            onClick = onSalvarClick,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Salvar")

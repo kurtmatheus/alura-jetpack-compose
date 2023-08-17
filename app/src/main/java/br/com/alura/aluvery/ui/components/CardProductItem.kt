@@ -14,12 +14,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.alura.aluvery.R
@@ -34,7 +33,7 @@ fun CardProductItem(
     product: Produto,
     modifier: Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
@@ -64,22 +63,13 @@ fun CardProductItem(
                     text = product.preco.toBrazillianCurrency()
                 )
             }
-            val dados = object {
-                val textOverflow =
-                    if (expanded) TextOverflow.Visible
-                    else TextOverflow.Ellipsis
-                val maxLines =
-                    if (expanded) Int.MAX_VALUE
-                    else 2
-            }
-            product.descricao?.let {
-
-                Text(
-                    text = it,
-                    modifier = Modifier.padding(16.dp),
-                    overflow = dados.textOverflow,
-                    maxLines = dados.maxLines
-                )
+            if (expanded) {
+                product.descricao?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
     }
